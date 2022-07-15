@@ -20,7 +20,7 @@ func train():
 
 	# DEBUG: Save a CSV of this data:
 	var f = File.new()
-	f.open("user://file.csv", File.WRITE_READ)
+	f.open("user://train.csv", File.WRITE_READ)
 
 	# Build all possible pairs of bones.
 	# [[bone_properties_a, bone_properties_b, 1/0], ...]
