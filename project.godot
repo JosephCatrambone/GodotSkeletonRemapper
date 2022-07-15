@@ -13,9 +13,15 @@ _global_script_classes=[{
 "class": &"DecisionTree",
 "language": &"GDScript",
 "path": "res://DecisionTree.gd"
+}, {
+"base": "Node3D",
+"class": &"VRMTopLevel",
+"language": &"GDScript",
+"path": "res://addons/vrm/vrm_toplevel.gd"
 }]
 _global_script_class_icons={
-"DecisionTree": ""
+"DecisionTree": "",
+"VRMTopLevel": ""
 }
 
 [application]
@@ -24,6 +30,10 @@ config/name="Vrm Remapper"
 run/main_scene="res://Main.tscn"
 config/features=PackedStringArray("4.0")
 config/icon="res://icon.png"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/Godot-MToon-Shader/plugin.cfg", "res://addons/force_bone_forward/plugin.cfg", "res://addons/vrm/plugin.cfg")
 
 [physics]
 
