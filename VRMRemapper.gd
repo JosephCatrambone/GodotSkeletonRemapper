@@ -17,15 +17,14 @@ func train():
 			bone_descriptors[name].append(skeleton_properties[name])
 
 	# DEBUG: Save a CSV of this data:
-	#var f = File.new()
-	#f.open("user://file.csv", File.WRITE_READ)
-	#f.store_16(-42) # This wraps around and stores 65494 (2^16 - 42).
-	#f.seek(0) # Go back to start to read the stored value.
+	var f = File.new()
+	f.open("user://file.csv", File.WRITE_READ)
 
 	# Build all possible pairs of bones.
 	# [[bone_properties_a, bone_properties_b, 1/0], ...]
 	var examples:Array = []
 	var labels:Array = []
+	var first : bool = true
 	for bone_name_a in bone_descriptors.keys():
 		for bone_array_a in bone_descriptors[bone_name_a]:
 			for bone_name_b in bone_descriptors.keys():
@@ -35,6 +34,19 @@ func train():
 					feature_vector.append_array(bone_array_b)
 					examples.append(feature_vector)
 					labels.append(bone_name_a == bone_name_b)
+					var header : PackedStringArray
+					if first:
+						header.push_back("label")
+						header.push_back("vector")
+						f.store_csv_line(header, "\t")
+						first = false
+					var line : PackedStringArray
+					line.push_back(str(bone_name_a == bone_name_b))
+					var feature_string : String = ""
+					for feature in feature_vector:
+						feature_string = feature_string + str(feature) + " "
+					line.push_back(feature_string)
+					f.store_csv_line(line, "\t")
 	
 	# Train our model.
 	var dt = DecisionTree.new()
@@ -42,7 +54,7 @@ func train():
 	print(dt.save_to_json())
 	return dt
 
-func compute_bone_depth_and_child_count(skeleton:Skeleton, bone_id:int, skeleton_info:Dictionary):
+func compute_bone_depth_and_child_count(skeleton:Skeleton3D, bone_id:int, skeleton_info:Dictionary):
 	# Mutates the given skeleton_info_dictionary
 	# Sets a mapping from bone_id to {"children": count, "depth": int, "siblings": int}
 	
@@ -62,7 +74,7 @@ func compute_bone_depth_and_child_count(skeleton:Skeleton, bone_id:int, skeleton
 	if parent_id == -1:
 		skeleton_info[bone_id]["depth"] = 0
 	# NOTE: Godot has no way to get the children of a bone via function call, so we iterate over and check the nodes which have this as a parent.
-	var child_bone_ids: PoolIntArray = []
+	var child_bone_ids: Array[int] = []
 	for child_bone_id in range(0, skeleton.get_bone_count()):
 		if skeleton.get_bone_parent(child_bone_id) == bone_id:
 			child_bone_ids.append(child_bone_id)
@@ -79,7 +91,7 @@ func compute_bone_depth_and_child_count(skeleton:Skeleton, bone_id:int, skeleton
 	
 	return skeleton_info
 
-func make_features_for_skeleton(skeleton:Skeleton) -> Dictionary:
+func make_features_for_skeleton(skeleton:Skeleton3D) -> Dictionary:
 	# Return a mapping from BONE NAME to a feature array.
 	var result = {}
 	
@@ -93,7 +105,7 @@ func make_features_for_skeleton(skeleton:Skeleton) -> Dictionary:
 
 	# Start by finding the depth of every bone.
 	for bone_id in skeleton.get_bone_count():
-		var pose:Transform = skeleton.get_bone_rest(bone_id)  # get_global_pose?
+		var pose:Transform3D = skeleton.get_bone_rest(bone_id)  # get_global_pose?
 		result[skeleton.get_bone_name(bone_id)] = [
 			# Position
 			pose.origin.x, pose.origin.y, pose.origin.z, 

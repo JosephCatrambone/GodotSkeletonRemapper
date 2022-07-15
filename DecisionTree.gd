@@ -43,10 +43,13 @@ func as_dict() -> Dictionary:
 
 func save_to_json() -> String:
 	var self_dict = self.as_dict()
-	return JSON.print(self_dict)
+	var json :JSON = JSON.new()
+	return json.stringify(self_dict)
 
 func load_from_json(json_string:String):
-	var parsed = JSON.parse(json_string)
+	var json :JSON = JSON.new()
+	json.parse(json_string)
+	var parsed : Dictionary = json.get_data() 
 	self.label_confidence = parsed["label_confidence"]
 	self.feature = parsed["feature"]
 	self.threshold = parsed["threshold"]
