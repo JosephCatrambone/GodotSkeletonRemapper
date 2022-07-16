@@ -8,6 +8,8 @@ extends Node3D
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	randomize()
+	
 	var day_features = [
 		# freezing, raining, foggy, sunny
 		[0, 1, 0, 0],
@@ -33,7 +35,7 @@ func _ready():
 	print_debug(dt.predict_with_probability([0, 0, 0, 0]))
 	
 	print("Training model")
-	var model = $VRMRemapper.train()
+	var model = $VRMRemapper.train(10)
 	#print($VRMRemapper.remap($VRMRemapper/AJ/skeleton, $VRMRemapper/BigVegas/skeleton))
 	print("Trained")
 

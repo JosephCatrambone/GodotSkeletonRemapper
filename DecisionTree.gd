@@ -2,12 +2,12 @@ class_name DecisionTree
 	
 var left
 var right
-var label_confidence: Dictionary
+var label_confidence: Dictionary  # label_type -> float
 var feature: int  # The index of the feature used to decide on left or right.
 var threshold: float  # If the value is less than this, go left.
 var impurity_index: float  # Used during training.
 
-func predict(sample: Array) -> bool:
+func predict(sample: Array):
 	var probabilities = self.predict_with_probability(sample)
 	var best_conf = 0.0
 	var prediction = null
@@ -187,3 +187,44 @@ func _calculate_gini_impurity(labels: Array) -> float:
 	# Gini impurity _index_ is 1-gini impurity.
 	var p_by_category = _probability_by_category(labels)
 	return _probability_to_gini_impurity(p_by_category)
+
+func evaluate(examples: Array, labels: Array, threshold: float = 0.5) -> Dictionary:
+	# Returns the error types TP/FP/TN/FN for the given batch of results.
+	var results = {
+		"tp": 0,
+		"fp": 0,
+		"tn": 0,
+		"fn": 0,
+	}
+	
+	for index in range(0, len(examples)):
+		var predictions = self.predict_with_probability(examples[index])
+		# predictions is {false: 0.1, true: 0.9}
+		# label in {true, false}
+		# prediction in {true, false}
+		
+		# Map from the bone prediction same==true to a probability:
+		var prediction = false
+		if predictions.has(true):
+			prediction = predictions[true] > threshold
+			
+		# Evaluate as true/false postitive/negative.
+		if prediction == true:
+			if labels[index] == true:
+				results["tp"] += 1
+			else:
+				results["fp"] += 1
+		else: # prediction is false:
+			if labels[index] == true:
+				results["fn"] += 1
+			else:
+				results["tn"] += 1
+		
+	# Renormalize and makes the counts into percents.
+	var num_examples = len(examples)
+	results["tp"] /= float(num_examples)
+	results["fp"] /= float(num_examples)
+	results["tn"] /= float(num_examples)
+	results["fn"] /= float(num_examples)
+		
+	return results
