@@ -1,0 +1,18 @@
+{
+    "checksum": "dDxNr_tOtZgTwYyIjr6bYQ==",
+    "data_train_hdf5_fp": "train.training.hdf5",
+    "dataset_src": "train.csv",
+    "label": {
+        "preprocessing": {
+            "missing_value_strategy": "drop_row"
+        }
+    },
+    "vector": {
+        "preprocessing": {
+            "computed_fill_value": "",
+            "fill_value": "",
+            "missing_value_strategy": "fill_with_const"
+        },
+        "vector_size": 30
+    }
+}
