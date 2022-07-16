@@ -34,6 +34,7 @@ func _ready():
 	
 	print("Training model")
 	var model = $VRMRemapper.train()
+	#print($VRMRemapper.remap($VRMRemapper/AJ/skeleton, $VRMRemapper/BigVegas/skeleton))
 	print("Trained")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
