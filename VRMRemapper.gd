@@ -51,6 +51,8 @@ func train():
 	# Ring finger -> [all the different bones we've seen that also ring fingers]
 	
 	for child in self.get_children():
+		if not child.visible:
+			continue
 		var skeleton = child.get_node("skeleton")
 		if skeleton == null:
 			print(child.name)
