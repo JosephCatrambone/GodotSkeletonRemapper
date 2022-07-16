@@ -65,13 +65,8 @@ func train():
 			bone_descriptors[name].append(skeleton_properties[name])
 
 	# DEBUG: Save a CSV of this data:
-<<<<<<< HEAD
-	var f = File.new()
-	f.open("user://train.csv", File.WRITE_READ)
-=======
 	#var f = File.new()
 	#f.open("user://file.csv", File.WRITE_READ)
->>>>>>> f4fa7ad... Fix bug in generation of examples.  Use diff of two rather than array.
 
 	# Build all possible pairs of bones.
 	# [[bone_properties_a, bone_properties_b, 1/0], ...]
@@ -162,10 +157,6 @@ func make_features_for_skeleton(skeleton:Skeleton3D) -> Dictionary:
 
 	# Start by finding the depth of every bone.
 	for bone_id in skeleton.get_bone_count():
-<<<<<<< HEAD
-		var pose:Transform3D = skeleton.get_bone_global_pose(bone_id)  # get_global_pose?
-		pose = skeleton.global_pose_to_world_transform(pose)
-=======
 		var pose:Transform3D = skeleton.global_pose_to_world_transform(skeleton.get_bone_global_pose(bone_id))  # get_global_rest_pose?
 		# Do some extra name properties:
 		var string_prop_name_left:float = 0.0
@@ -175,7 +166,6 @@ func make_features_for_skeleton(skeleton:Skeleton3D) -> Dictionary:
 		if skeleton.get_bone_name(bone_id).to_lower().contains("right"):
 			string_prop_name_right = 1.0
 		# Build vec:
->>>>>>> f4fa7ad... Fix bug in generation of examples.  Use diff of two rather than array.
 		result[skeleton.get_bone_name(bone_id)] = [
 			# Position
 			pose.origin.x, pose.origin.y, pose.origin.z, 
