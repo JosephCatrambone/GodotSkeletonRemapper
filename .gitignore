@@ -9,3 +9,13 @@ export_presets.cfg
 data_*/
 
 .godot/
+
+ludwig-ml/results/
+
+ludwig-ml/train.meta.json
+
+ludwig-ml/train.test.hdf5
+
+ludwig-ml/train.training.hdf5
+
+ludwig-ml/train.validation.hdf5

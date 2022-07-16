@@ -108,6 +108,7 @@ func make_features_for_skeleton(skeleton:Skeleton3D) -> Dictionary:
 	# Start by finding the depth of every bone.
 	for bone_id in skeleton.get_bone_count():
 		var pose:Transform3D = skeleton.get_bone_global_pose(bone_id)  # get_global_pose?
+		pose = skeleton.global_pose_to_world_transform(pose)
 		result[skeleton.get_bone_name(bone_id)] = [
 			# Position
 			pose.origin.x, pose.origin.y, pose.origin.z, 
