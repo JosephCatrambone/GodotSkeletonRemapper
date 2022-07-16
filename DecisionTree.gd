@@ -7,7 +7,7 @@ var feature: int  # The index of the feature used to decide on left or right.
 var threshold: float  # If the value is less than this, go left.
 var impurity_index: float  # Used during training.
 
-func predict(sample: Array):
+func predict(sample: Array) -> bool:
 	var probabilities = self.predict_with_probability(sample)
 	var best_conf = 0.0
 	var prediction = null
@@ -18,7 +18,7 @@ func predict(sample: Array):
 			prediction = label_name
 	return prediction
 
-func predict_with_probability(sample: Array):
+func predict_with_probability(sample: Array) -> Dictionary:
 	if self.left == null or self.right == null:
 		return self.label_confidence
 	elif sample[self.feature] < self.threshold:
@@ -63,6 +63,22 @@ func load_from_json(json_string:String):
 		#self.right.load_from_json(parsed["right"])
 		self.right = parsed["right"]
 
+func _compute_median(values_list:Array) -> float:
+	# Find the best threshold for this column.
+	values_list.sort()
+	var count_items_on_left:int = 0
+	var threshold_value:float = values_list[0]
+	var items_in_column = len(values_list)
+	# TODO: Actually compute median.
+	var median = values_list[int(round(items_in_column/2))]
+	return median
+
+func _compute_mean(values_list:Array) -> float:
+	var accumulator = 0.0
+	for entry in values_list:
+		accumulator += entry
+	return accumulator / float(len(values_list))
+
 func train(samples: Array, labels: Array, max_depth:int = -1, max_impurity:float = 1.0):
 	# Generates a decision tree node or None.
 	# Samples should be an array of arrays.
@@ -84,22 +100,30 @@ func train(samples: Array, labels: Array, max_depth:int = -1, max_impurity:float
 	var best_split_value:float = 0.0
 	var lowest_impurity_index:float = 100000.0
 	for candidate_column in range(0, len(samples[0])):
-		# Try splitting on this candidate column.
-		# For now, assume that this column is a boolean.
-		var left_candidate_labels = []
-		var right_candidate_labels = []
+		var column_values = []
 		for idx in range(0, len(samples)):
-			if samples[idx][candidate_column] < 0.5:  # TODO: Change this to use the median of the values.
-				left_candidate_labels.append(labels[idx])
-			else:
-				right_candidate_labels.append(labels[idx])
-		var left_impurity_index = 1.0 - _calculate_gini_impurity(left_candidate_labels)
-		var right_impurity_index = 1.0 - _calculate_gini_impurity(right_candidate_labels)
-		var weighted_impurity_index = (float(len(left_candidate_labels))/float(len(labels))*left_impurity_index + float(len(right_candidate_labels))/float(len(labels))*right_impurity_index)
-		if weighted_impurity_index < lowest_impurity_index:
-			lowest_impurity_index = weighted_impurity_index
-			best_split_column = candidate_column
-			best_split_value = 0.5
+			column_values.append(samples[idx][candidate_column])
+		var split_values = [
+			_compute_median(column_values),
+			_compute_mean(column_values),
+		]
+		for split_value in split_values:
+			# Try splitting on this candidate column.
+			# For now, assume that this column is a boolean.
+			var left_candidate_labels = []
+			var right_candidate_labels = []
+			for idx in range(0, len(samples)):
+				if samples[idx][candidate_column] < split_value:
+					left_candidate_labels.append(labels[idx])
+				else:
+					right_candidate_labels.append(labels[idx])
+			var left_impurity_index = 1.0 - _calculate_gini_impurity(left_candidate_labels)
+			var right_impurity_index = 1.0 - _calculate_gini_impurity(right_candidate_labels)
+			var weighted_impurity_index = (float(len(left_candidate_labels))/float(len(labels))*left_impurity_index + float(len(right_candidate_labels))/float(len(labels))*right_impurity_index)
+			if weighted_impurity_index < lowest_impurity_index:
+				lowest_impurity_index = weighted_impurity_index
+				best_split_column = candidate_column
+				best_split_value = split_value
 	
 	# Create the decision tree.
 	self.feature = best_split_column
